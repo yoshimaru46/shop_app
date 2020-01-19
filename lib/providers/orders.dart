@@ -8,15 +8,19 @@ class OrderItem {
   final List<CartItem> products;
   final DateTime dateTime;
 
-  OrderItem(
-      {@required this.id,
-      @required this.amount,
-      @required this.products,
-      @required this.dateTime});
+  OrderItem({
+    @required this.id,
+    @required this.amount,
+    @required this.products,
+    @required this.dateTime,
+  });
 }
 
 class Orders with ChangeNotifier {
   List<OrderItem> _orders = [];
+  final String authToken;
+
+  Orders(this.authToken, this._orders);
 
   List<OrderItem> get orders {
     return [..._orders];
