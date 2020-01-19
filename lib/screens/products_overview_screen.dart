@@ -1,27 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shop_app/providers/cart.dart';
-import 'package:shop_app/providers/products.dart';
-import 'package:shop_app/screens/cart_screen.dart';
-import 'package:shop_app/widgets/app_drawer.dart';
 
+import '../widgets/app_drawer.dart';
+import '../widgets/products_grid.dart';
 import '../widgets/badge.dart';
-import '../widgets/product_grid.dart';
+import '../providers/cart.dart';
+import './cart_screen.dart';
+import '../providers/products.dart';
 
-enum FilterOptions { Favorites, All }
-
-class ProductsOverViewScreen extends StatefulWidget {
-  @override
-  _ProductsOverViewScreenState createState() => _ProductsOverViewScreenState();
+enum FilterOptions {
+  Favorites,
+  All,
 }
 
-class _ProductsOverViewScreenState extends State<ProductsOverViewScreen> {
-  var _showFavoriteOnly = false;
-  var _isInit = false;
+class ProductsOverviewScreen extends StatefulWidget {
+  @override
+  _ProductsOverviewScreenState createState() => _ProductsOverviewScreenState();
+}
+
+class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
+  var _showOnlyFavorites = false;
+  var _isInit = true;
   var _isLoading = false;
 
   @override
   void initState() {
+    // Provider.of<Products>(context).fetchAndSetProducts(); // WON'T WORK!
+    // Future.delayed(Duration.zero).then((_) {
+    //   Provider.of<Products>(context).fetchAndSetProducts();
+    // });
     super.initState();
   }
 
@@ -45,47 +52,54 @@ class _ProductsOverViewScreenState extends State<ProductsOverViewScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('My Shop App'),
+        title: Text('MyShop'),
         actions: <Widget>[
           PopupMenuButton(
-            onSelected: (selectedValue) {
+            onSelected: (FilterOptions selectedValue) {
               setState(() {
                 if (selectedValue == FilterOptions.Favorites) {
-                  _showFavoriteOnly = true;
+                  _showOnlyFavorites = true;
                 } else {
-                  _showFavoriteOnly = false;
+                  _showOnlyFavorites = false;
                 }
               });
             },
-            icon: Icon(Icons.more_vert),
+            icon: Icon(
+              Icons.more_vert,
+            ),
             itemBuilder: (_) => [
-              PopupMenuItem(
-                child: Text('Only Favorites'),
-                value: FilterOptions.Favorites,
-              ),
-              PopupMenuItem(
-                child: Text('Show All'),
-                value: FilterOptions.All,
-              )
-            ],
+                  PopupMenuItem(
+                    child: Text('Only Favorites'),
+                    value: FilterOptions.Favorites,
+                  ),
+                  PopupMenuItem(
+                    child: Text('Show All'),
+                    value: FilterOptions.All,
+                  ),
+                ],
           ),
           Consumer<Cart>(
             builder: (_, cart, ch) => Badge(
-              child: ch,
-              value: cart.itemCount.toString(),
-            ),
+                  child: ch,
+                  value: cart.itemCount.toString(),
+                ),
             child: IconButton(
-                icon: Icon(Icons.shopping_cart),
-                onPressed: () {
-                  Navigator.of(context).pushNamed(CartScreen.routeName);
-                }),
+              icon: Icon(
+                Icons.shopping_cart,
+              ),
+              onPressed: () {
+                Navigator.of(context).pushNamed(CartScreen.routeName);
+              },
+            ),
           ),
         ],
       ),
       drawer: AppDrawer(),
       body: _isLoading
-          ? Center(child: CircularProgressIndicator())
-          : ProductGrid(_showFavoriteOnly),
+          ? Center(
+              child: CircularProgressIndicator(),
+            )
+          : ProductsGrid(_showOnlyFavorites),
     );
   }
 }
